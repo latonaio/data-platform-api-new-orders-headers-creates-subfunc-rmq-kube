@@ -41,7 +41,7 @@ func (f *SubFunction) OrderRegistrationType(
 	psdc *api_processing_data_formatter.SDC,
 ) *api_processing_data_formatter.OrderRegistrationType {
 	registrationType := "Direct Registration"
-	if sdc.OrdersInputParameters.ReferenceDocument != nil && sdc.OrdersInputParameters.ReferenceDocumentItem != nil {
+	if sdc.InputParameters.ReferenceDocument != nil && sdc.InputParameters.ReferenceDocumentItem != nil {
 		registrationType = "Reference Registration"
 	}
 
@@ -71,8 +71,8 @@ func (f *SubFunction) OrderReferenceDocumentType(
 	data := &api_processing_data_formatter.OrderReferenceDocumentType{}
 
 	for i := 0; i < len(dataQueryGets); i++ {
-		if sdc.OrdersInputParameters.ReferenceDocument != nil && dataQueryGets[i].NumberRangeFrom != nil && dataQueryGets[i].NumberRangeTo != nil {
-			if *sdc.OrdersInputParameters.ReferenceDocument >= *dataQueryGets[i].NumberRangeFrom && *sdc.OrdersInputParameters.ReferenceDocument <= *dataQueryGets[i].NumberRangeTo {
+		if sdc.InputParameters.ReferenceDocument != nil && dataQueryGets[i].NumberRangeFrom != nil && dataQueryGets[i].NumberRangeTo != nil {
+			if *sdc.InputParameters.ReferenceDocument >= *dataQueryGets[i].NumberRangeFrom && *sdc.InputParameters.ReferenceDocument <= *dataQueryGets[i].NumberRangeTo {
 				data = psdc.ConvertToOrderReferenceDocumentType(dataQueryGets[i])
 				break
 			}
@@ -113,10 +113,10 @@ func (f *SubFunction) CreateSdc(
 	psdc.LastChangeDateHeader = f.LastChangeDateHeader(sdc, psdc)
 
 	f.l.Info(psdc)
-	// err = f.SetValue(sdc, psdc, osdc)
-	// if err != nil {
-	// 	return err
-	// }
+	err = f.SetValue(sdc, psdc, osdc)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -130,8 +130,8 @@ func (f *SubFunction) DirectRegistration(
 	var e error
 
 	wg := sync.WaitGroup{}
-	wg.Add(3)
 
+	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		// 1-0. サプライチェーンリレーションシップマスタでの取引妥当性確認(一般データ)
@@ -289,6 +289,7 @@ func (f *SubFunction) DirectRegistration(
 
 	}(&wg)
 
+	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		// 1-6. OrderID
@@ -299,6 +300,7 @@ func (f *SubFunction) DirectRegistration(
 		}
 	}(&wg)
 
+	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
 		// 1-13. PriceDetnExchangeRate

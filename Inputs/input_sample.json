@@ -8,7 +8,7 @@
 	"business_partner": 201,
 	"service_label": "ORDERS",
 	"api_type": "creates",
-	"OrdersInputParameters": {
+	"InputParameters": {
 		"ReferenceDocument": 20000001,
 		"ReferenceDocumentItem": null
 	},
@@ -58,6 +58,8 @@
 		"HeaderBlockStatus": null,
 		"HeaderDeliveryBlockStatus": null,
 		"HeaderBillingBlockStatus": null,
+		"HeaderIsCancelled": null,
+        "HeaderIsDeleted`": null,
 		"HeaderDoc": [
 			{
 				"DocType": "",
@@ -131,7 +133,7 @@
 				"StockConfirmationPlant": "",
 				"StockConfirmationPlantTimeZone": "",
 				"ProductIsBatchManagedInStockConfirmationPlant": null,
-				"BatchMgmtPolicyStockConfirmationInPlant": "",
+				"BatchMgmtPolicyInStockConfirmationPlant": "",
 				"StockConfirmationPlantBatch": "",
 				"StockConfirmationPlantBatchValidityStartDate": null,
 				"StockConfirmationPlantBatchValidityStartTime": null,
@@ -148,6 +150,8 @@
 				"ItemGrossWeight": null,
 				"ProductNetWeight": null,
 				"ItemNetWeight": null,
+				"InternalCapacityQuantity": null,
+				"InternalCapacityQuantityUnit": null,
 				"NetAmount": null,
 				"TaxAmount": null,
 				"GrossAmount": null,
@@ -191,6 +195,8 @@
 				"ItemBlockStatus": null,
 				"ItemDeliveryBlockStatus": null,
 				"ItemBillingBlockStatus": null,
+				"ItemIsCancelled": null,
+                "ItemIsDeleted`": null,
 				"ItemPricingElement": [
 					{
 						"SupplyChainRelationshipID": null,
@@ -246,7 +252,7 @@
 				"OrderItemText": "",
 				"OrderItemTextByBuyer": "",
 				"OrderItemTextBySeller": "",
-				"Product": "W999",
+				"Product": "A4906",
 				"ProductStandardID": "",
 				"ProductGroup": "",
 				"BaseUnit": "",
@@ -282,7 +288,7 @@
 				"StockConfirmationPlant": "",
 				"StockConfirmationPlantTimeZone": "",
 				"ProductIsBatchManagedInStockConfirmationPlant": null,
-				"BatchMgmtPolicyStockConfirmationInPlant": null,
+				"BatchMgmtPolicyInStockConfirmationPlant": null,
 				"StockConfirmationPlantBatch": "",
 				"StockConfirmationPlantBatchValidityStartDate": null,
 				"StockConfirmationPlantBatchValidityStartTime": null,
@@ -299,6 +305,8 @@
 				"ItemGrossWeight": null,
 				"ProductNetWeight": null,
 				"ItemNetWeight": null,
+				"InternalCapacityQuantity": null,
+				"InternalCapacityQuantityUnit": null,
 				"NetAmount": null,
 				"TaxAmount": null,
 				"GrossAmount": null,
@@ -342,6 +350,8 @@
 				"ItemBlockStatus": null,
 				"ItemDeliveryBlockStatus": null,
 				"ItemBillingBlockStatus": null,
+				"ItemIsCancelled": null,
+                "ItemIsDeleted`": null,
 				"ItemPricingElement": [
 					{
 						"SupplyChainRelationshipID": null,

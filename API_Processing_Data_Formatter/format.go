@@ -26,8 +26,8 @@ func (psdc *SDC) ConvertToMetaData(sdc *api_input_reader.SDC) *MetaData {
 
 func (psdc *SDC) ConvertToOrderRegistrationType(sdc *api_input_reader.SDC, registrationType string) *OrderRegistrationType {
 	pm := &requests.OrderRegistrationType{
-		ReferenceDocument:     sdc.OrdersInputParameters.ReferenceDocument,
-		ReferenceDocumentItem: sdc.OrdersInputParameters.ReferenceDocumentItem,
+		ReferenceDocument:     sdc.InputParameters.ReferenceDocument,
+		ReferenceDocumentItem: sdc.InputParameters.ReferenceDocumentItem,
 	}
 
 	pm.RegistrationType = registrationType

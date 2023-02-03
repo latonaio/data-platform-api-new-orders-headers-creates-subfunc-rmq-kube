@@ -62,6 +62,10 @@ func ConvertToHeader(
 	header.HeaderBlockStatus = getBoolPtr(false)
 	header.HeaderBillingBlockStatus = getBoolPtr(false)
 	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
+	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
+	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
+	header.HeaderIsCancelled = getBoolPtr(false)
+	header.HeaderIsDeleted = getBoolPtr(false)
 
 	return header, nil
 }

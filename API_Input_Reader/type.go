@@ -1,23 +1,23 @@
 package api_input_reader
 
 type SDC struct {
-	ConnectionKey         string                `json:"connection_key"`
-	Result                bool                  `json:"result"`
-	RedisKey              string                `json:"redis_key"`
-	Filepath              string                `json:"filepath"`
-	APIStatusCode         int                   `json:"api_status_code"`
-	RuntimeSessionID      string                `json:"runtime_session_id"`
-	BusinessPartnerID     *int                  `json:"business_partner"`
-	ServiceLabel          string                `json:"service_label"`
-	APIType               string                `json:"APIType"`
-	OrdersInputParameters OrdersInputParameters `json:"OrdersInputParameters"`
-	Header                Header                `json:"Orders"`
-	APISchema             string                `json:"api_schema"`
-	Accepter              []string              `json:"accepter"`
-	Deleted               bool                  `json:"deleted"`
+	ConnectionKey     string          `json:"connection_key"`
+	Result            bool            `json:"result"`
+	RedisKey          string          `json:"redis_key"`
+	Filepath          string          `json:"filepath"`
+	APIStatusCode     int             `json:"api_status_code"`
+	RuntimeSessionID  string          `json:"runtime_session_id"`
+	BusinessPartnerID *int            `json:"business_partner"`
+	ServiceLabel      string          `json:"service_label"`
+	APIType           string          `json:"APIType"`
+	InputParameters   InputParameters `json:"InputParameters"`
+	Header            Header          `json:"Orders"`
+	APISchema         string          `json:"api_schema"`
+	Accepter          []string        `json:"accepter"`
+	Deleted           bool            `json:"deleted"`
 }
 
-type OrdersInputParameters struct {
+type InputParameters struct {
 	ReferenceDocument     *int `json:"ReferenceDocument"`
 	ReferenceDocumentItem *int `json:"ReferenceDocumentItem"`
 }
@@ -68,6 +68,8 @@ type Header struct {
 	HeaderBlockStatus                *bool       `json:"HeaderBlockStatus"`
 	HeaderDeliveryBlockStatus        *bool       `json:"HeaderDeliveryBlockStatus"`
 	HeaderBillingBlockStatus         *bool       `json:"HeaderBillingBlockStatus"`
+	HeaderIsCancelled                *bool       `json:"HeaderIsCancelled"`
+	HeaderIsDeleted                  *bool       `json:"HeaderIsDeleted"`
 	Item                             []Item      `json:"Item"`
 	Partner                          []Partner   `json:"Partner"`
 	Address                          []Address   `json:"Address"`
@@ -161,7 +163,7 @@ type Item struct {
 	StockConfirmationPlant                        *string              `json:"StockConfirmationPlant"`
 	StockConfirmationPlantTimeZone                *string              `json:"StockConfirmationPlantTimeZone"`
 	ProductIsBatchManagedInStockConfirmationPlant *bool                `json:"ProductIsBatchManagedInStockConfirmationPlant"`
-	BatchMgmtPolicyStockConfirmationInPlant       *string              `json:"BatchMgmtPolicyStockConfirmationInPlant"`
+	BatchMgmtPolicyInStockConfirmationPlant       *string              `json:"BatchMgmtPolicyInStockConfirmationPlant"`
 	StockConfirmationPlantBatch                   *string              `json:"StockConfirmationPlantBatch"`
 	StockConfirmationPlantBatchValidityStartDate  *string              `json:"StockConfirmationPlantBatchValidityStartDate"`
 	StockConfirmationPlantBatchValidityStartTime  *string              `json:"StockConfirmationPlantBatchValidityStartTime"`
@@ -178,6 +180,8 @@ type Item struct {
 	ItemGrossWeight                               *float32             `json:"ItemGrossWeight"`
 	ProductNetWeight                              *float32             `json:"ProductNetWeight"`
 	ItemNetWeight                                 *float32             `json:"ItemNetWeight"`
+	InternalCapacityQuantity                      *float32             `json:"InternalCapacityQuantity"`
+	InternalCapacityQuantityUnit                  *string              `json:"InternalCapacityQuantityUnit"`
 	NetAmount                                     *float32             `json:"NetAmount"`
 	TaxAmount                                     *float32             `json:"TaxAmount"`
 	GrossAmount                                   *float32             `json:"GrossAmount"`
@@ -221,6 +225,8 @@ type Item struct {
 	ItemBlockStatus                               *bool                `json:"ItemBlockStatus"`
 	ItemDeliveryBlockStatus                       *bool                `json:"ItemDeliveryBlockStatus"`
 	ItemBillingBlockStatus                        *bool                `json:"ItemBillingBlockStatus"`
+	ItemIsCancelled                               *bool                `json:"ItemIsCancelled"`
+	ItemIsDeleted                                 *bool                `json:"ItemIsDeleted"`
 	ItemPricingElement                            []ItemPricingElement `json:"ItemPricingElement"`
 	ItemScheduleLine                              []ItemScheduleLine   `json:"ItemScheduleLine"`
 }

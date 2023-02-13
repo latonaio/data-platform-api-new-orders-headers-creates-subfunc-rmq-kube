@@ -9,7 +9,7 @@
 	"service_label": "ORDERS",
 	"api_type": "creates",
 	"InputParameters": {
-		"ReferenceDocument": 20000001,
+		"ReferenceDocument": null,
 		"ReferenceDocumentItem": null
 	},
 	"Orders": {
@@ -58,8 +58,8 @@
 		"HeaderBlockStatus": null,
 		"HeaderDeliveryBlockStatus": null,
 		"HeaderBillingBlockStatus": null,
-		"HeaderIsCancelled": null,
-		"HeaderIsDeleted`": null,
+		"IsCancelled": null,
+		"IsMarkedForDeletion": null,
 		"HeaderDoc": [
 			{
 				"DocType": "",
@@ -140,8 +140,8 @@
 				"StockConfirmationPlantBatchValidityEndDate": "2020-10-31",
 				"StockConfirmationPlantBatchValidityEndTime": "23:59:59",
 				"ServicesRenderingDate": "2014-07-01",
-				"OrderQuantityInBaseUnit": 10,
-				"OrderQuantityInDeliveryUnit": 10,
+				"OrderQuantityInBaseUnit": 20,
+				"OrderQuantityInDeliveryUnit": 20,
 				"StockConfirmationPolicy": "",
 				"StockConfirmationStatus": "",
 				"ConfirmedOrderQuantityInBaseUnit": null,
@@ -152,7 +152,7 @@
 				"ItemNetWeight": null,
 				"InternalCapacityQuantity": null,
 				"InternalCapacityQuantityUnit": null,
-				"NetAmount": null,
+				"NetAmount": 2780,
 				"TaxAmount": null,
 				"GrossAmount": null,
 				"InvoiceDocumentDate": null,
@@ -179,7 +179,7 @@
 				"PaymentDueDate": "2023-01-10",
 				"NetPaymentDays": null,
 				"PaymentMethod": "",
-				"Project": "",
+				"Project": "1094059",
 				"AccountingExchangeRate": null,
 				"ReferenceDocument": 1837,
 				"ReferenceDocumentItem": 12,
@@ -195,27 +195,9 @@
 				"ItemBlockStatus": null,
 				"ItemDeliveryBlockStatus": null,
 				"ItemBillingBlockStatus": null,
-				"ItemIsCancelled": null,
-				"ItemIsDeleted`": null,
+				"IsCancelled": null,
+				"IsMarkedForDeletion": null,
 				"ItemPricingElement": [
-					{
-						"SupplyChainRelationshipID": null,
-						"Buyer": 101,
-						"Seller": 701,
-						"PricingProcedureCounter": null,
-						"ConditionRecord": null,
-						"ConditionSequentialNumber": null,
-						"ConditionType": "PR00",
-						"PricingDate": "2023-01-31",
-						"ConditionRateValue": 139,
-						"ConditionCurrency": "JPY",
-						"ConditionQuantity": null,
-						"ConditionQuantityUnit": "",
-						"TaxCode": "",
-						"ConditionAmount": null,
-						"TransactionCurrency": "",
-						"ConditionIsManuallyChanged": null
-					},
 					{
 						"SupplyChainRelationshipID": null,
 						"Buyer": 101,
@@ -255,7 +237,9 @@
 						"OpenConfirmedQuantityInBaseUnit": null,
 						"StockIsFullyConfirmed": null,
 						"PlusMinusFlag": "",
-						"ItemScheduleLineDeliveryBlockStatus": null
+						"ItemScheduleLineDeliveryBlockStatus": null,
+						"IsCancelled": null,
+						"IsMarkedForDeletion": null
 					}
 				]
 			},
@@ -325,7 +309,7 @@
 				"ItemNetWeight": null,
 				"InternalCapacityQuantity": null,
 				"InternalCapacityQuantityUnit": null,
-				"NetAmount": null,
+				"NetAmount": 2140,
 				"TaxAmount": null,
 				"GrossAmount": null,
 				"InvoiceDocumentDate": null,
@@ -368,27 +352,9 @@
 				"ItemBlockStatus": null,
 				"ItemDeliveryBlockStatus": null,
 				"ItemBillingBlockStatus": null,
-				"ItemIsCancelled": false,
-        		"ItemIsDeleted`": false,
+				"IsCancelled": false,
+				"IsMarkedForDeletion": false,
 				"ItemPricingElement": [
-					{
-						"SupplyChainRelationshipID": null,
-						"Buyer": 101,
-						"Seller": 701,
-						"PricingProcedureCounter": null,
-						"ConditionRecord": null,
-						"ConditionSequentialNumber": null,
-						"ConditionType": "PR00",
-						"PricingDate": "2023-01-31",
-						"ConditionRateValue": 110,
-						"ConditionCurrency": "JPY",
-						"ConditionQuantity": null,
-						"ConditionQuantityUnit": "",
-						"TaxCode": "",
-						"ConditionAmount": null,
-						"TransactionCurrency": "",
-						"ConditionIsManuallyChanged": null
-					},
 					{
 						"SupplyChainRelationshipID": null,
 						"Buyer": 101,
@@ -440,9 +406,9 @@
 				"BusinessPartnerFullName": "",
 				"BusinessPartnerName": "",
 				"Organization": "",
-				"Country": "",
-				"Language": "",
-				"Currency": "",
+				"Country": "JP",
+				"Language": "JA",
+				"Currency": "JPY",
 				"ExternalDocumentID": "",
 				"AddressID": null
 			},
@@ -452,9 +418,9 @@
 				"BusinessPartnerFullName": "",
 				"BusinessPartnerName": "",
 				"Organization": "",
-				"Country": "",
-				"Language": "",
-				"Currency": "",
+				"Country": "JP",
+				"Language": "JA",
+				"Currency": "JPY",
 				"ExternalDocumentID": "",
 				"AddressID": null
 			}
@@ -462,7 +428,7 @@
 	},
 	"api_schema": "DPFMOrdersCreates",
 	"accepter": [
-		"Header"
+		"All"
 	],
 	"deleted": false
 }

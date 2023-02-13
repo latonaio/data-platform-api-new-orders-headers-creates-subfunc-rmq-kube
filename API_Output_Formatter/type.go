@@ -73,47 +73,8 @@ type Header struct {
 	HeaderBlockStatus                *bool    `json:"HeaderBlockStatus"`
 	HeaderDeliveryBlockStatus        *bool    `json:"HeaderDeliveryBlockStatus"`
 	HeaderBillingBlockStatus         *bool    `json:"HeaderBillingBlockStatus"`
-	HeaderIsCancelled                *bool    `json:"HeaderIsCancelled"`
-	HeaderIsDeleted                  *bool    `json:"HeaderIsDeleted"`
-}
-
-type Partner struct {
-	OrderID                 int     `json:"OrderID"`
-	PartnerFunction         string  `json:"PartnerFunction"`
-	BusinessPartner         int     `json:"BusinessPartner"`
-	BusinessPartnerFullName *string `json:"BusinessPartnerFullName"`
-	BusinessPartnerName     *string `json:"BusinessPartnerName"`
-	Organization            *string `json:"Organization"`
-	Country                 *string `json:"Country"`
-	Language                *string `json:"Language"`
-	Currency                *string `json:"Currency"`
-	ExternalDocumentID      *string `json:"ExternalDocumentID"`
-	AddressID               *int    `json:"AddressID"`
-}
-
-type Address struct {
-	OrderID     int     `json:"OrderID"`
-	AddressID   int     `json:"AddressID"`
-	PostalCode  *string `json:"PostalCode"`
-	LocalRegion *string `json:"LocalRegion"`
-	Country     *string `json:"Country"`
-	District    *string `json:"District"`
-	StreetName  *string `json:"StreetName"`
-	CityName    *string `json:"CityName"`
-	Building    *string `json:"Building"`
-	Floor       *int    `json:"Floor"`
-	Room        *int    `json:"Room"`
-}
-
-type HeaderDoc struct {
-	OrderID                  int     `json:"OrderID"`
-	DocType                  string  `json:"DocType"`
-	DocVersionID             int     `json:"DocVersionID"`
-	DocID                    string  `json:"DocID"`
-	FileExtension            string  `json:"FileExtension"`
-	FileName                 *string `json:"FileName"`
-	FilePath                 *string `json:"FilePath"`
-	DocIssuerBusinessPartner *int    `json:"DocIssuerBusinessPartner"`
+	IsCancelled                      *bool    `json:"IsCancelled"`
+	IsMarkedForDeletion              *bool    `json:"IsMarkedForDeletion"`
 }
 
 type Item struct {
@@ -226,29 +187,8 @@ type Item struct {
 	ItemBlockStatus                               *bool    `json:"ItemBlockStatus"`
 	ItemDeliveryBlockStatus                       *bool    `json:"ItemDeliveryBlockStatus"`
 	ItemBillingBlockStatus                        *bool    `json:"ItemBillingBlockStatus"`
-	ItemIsCancelled                               *bool    `json:"ItemIsCancelled"`
-	ItemIsDeleted                                 *bool    `json:"ItemIsDeleted"`
-}
-
-type ItemPricingElement struct {
-	OrderID                    int      `json:"OrderID"`
-	OrderItem                  int      `json:"OrderItem"`
-	SupplyChainRelationshipID  int      `json:"SupplyChainRelationshipID"`
-	Buyer                      int      `json:"Buyer"`
-	Seller                     int      `json:"Seller"`
-	PricingProcedureCounter    int      `json:"PricingProcedureCounter"`
-	ConditionRecord            *int     `json:"ConditionRecord"`
-	ConditionSequentialNumber  *int     `json:"ConditionSequentialNumber"`
-	ConditionType              *string  `json:"ConditionType"`
-	PricingDate                *string  `json:"PricingDate"`
-	ConditionRateValue         *float32 `json:"ConditionRateValue"`
-	ConditionCurrency          *string  `json:"ConditionCurrency"`
-	ConditionQuantity          *float32 `json:"ConditionQuantity"`
-	ConditionQuantityUnit      *string  `json:"ConditionQuantityUnit"`
-	TaxCode                    *string  `json:"TaxCode"`
-	ConditionAmount            *float32 `json:"ConditionAmount"`
-	TransactionCurrency        *string  `json:"TransactionCurrency"`
-	ConditionIsManuallyChanged *bool    `json:"ConditionIsManuallyChanged"`
+	IsCancelled                                   *bool    `json:"IsCancelled"`
+	IsMarkedForDeletion                           *bool    `json:"IsMarkedForDeletion"`
 }
 
 type ItemScheduleLine struct {
@@ -273,4 +213,66 @@ type ItemScheduleLine struct {
 	StockIsFullyConfirmed                        *bool    `json:"StockIsFullyConfirmed"`
 	PlusMinusFlag                                string   `json:"PlusMinusFlag"`
 	ItemScheduleLineDeliveryBlockStatus          *bool    `json:"ItemScheduleLineDeliveryBlockStatus"`
+	IsCancelled                                  *bool    `json:"IsCancelled"`
+	IsMarkedForDeletion                          *bool    `json:"IsMarkedForDeletion"`
+}
+
+type ItemPricingElement struct {
+	OrderID                    int      `json:"OrderID"`
+	OrderItem                  int      `json:"OrderItem"`
+	SupplyChainRelationshipID  int      `json:"SupplyChainRelationshipID"`
+	Buyer                      int      `json:"Buyer"`
+	Seller                     int      `json:"Seller"`
+	PricingProcedureCounter    int      `json:"PricingProcedureCounter"`
+	ConditionRecord            *int     `json:"ConditionRecord"`
+	ConditionSequentialNumber  *int     `json:"ConditionSequentialNumber"`
+	ConditionType              *string  `json:"ConditionType"`
+	PricingDate                *string  `json:"PricingDate"`
+	ConditionRateValue         *float32 `json:"ConditionRateValue"`
+	ConditionCurrency          *string  `json:"ConditionCurrency"`
+	ConditionQuantity          *float32 `json:"ConditionQuantity"`
+	ConditionQuantityUnit      *string  `json:"ConditionQuantityUnit"`
+	TaxCode                    *string  `json:"TaxCode"`
+	ConditionAmount            *float32 `json:"ConditionAmount"`
+	TransactionCurrency        *string  `json:"TransactionCurrency"`
+	ConditionIsManuallyChanged *bool    `json:"ConditionIsManuallyChanged"`
+}
+
+type Partner struct {
+	OrderID                 int     `json:"OrderID"`
+	PartnerFunction         string  `json:"PartnerFunction"`
+	BusinessPartner         int     `json:"BusinessPartner"`
+	BusinessPartnerFullName *string `json:"BusinessPartnerFullName"`
+	BusinessPartnerName     *string `json:"BusinessPartnerName"`
+	Organization            *string `json:"Organization"`
+	Country                 *string `json:"Country"`
+	Language                *string `json:"Language"`
+	Currency                *string `json:"Currency"`
+	ExternalDocumentID      *string `json:"ExternalDocumentID"`
+	AddressID               *int    `json:"AddressID"`
+}
+
+type Address struct {
+	OrderID     int     `json:"OrderID"`
+	AddressID   int     `json:"AddressID"`
+	PostalCode  *string `json:"PostalCode"`
+	LocalRegion *string `json:"LocalRegion"`
+	Country     *string `json:"Country"`
+	District    *string `json:"District"`
+	StreetName  *string `json:"StreetName"`
+	CityName    *string `json:"CityName"`
+	Building    *string `json:"Building"`
+	Floor       *int    `json:"Floor"`
+	Room        *int    `json:"Room"`
+}
+
+type HeaderDoc struct {
+	OrderID                  int     `json:"OrderID"`
+	DocType                  string  `json:"DocType"`
+	DocVersionID             int     `json:"DocVersionID"`
+	DocID                    string  `json:"DocID"`
+	FileExtension            string  `json:"FileExtension"`
+	FileName                 *string `json:"FileName"`
+	FilePath                 *string `json:"FilePath"`
+	DocIssuerBusinessPartner *int    `json:"DocIssuerBusinessPartner"`
 }

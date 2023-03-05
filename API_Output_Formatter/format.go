@@ -47,7 +47,6 @@ func ConvertToHeader(
 		return nil, xerrors.Errorf("request create error: %w", err)
 	}
 
-	header.OrderID = psdc.CalculateOrderID.OrderID
 	header.CreationDate = psdc.CreationDateHeader.CreationDate
 	header.LastChangeDate = psdc.LastChangeDateHeader.LastChangeDate
 	header.TotalNetAmount = psdc.TotalNetAmount.TotalNetAmount

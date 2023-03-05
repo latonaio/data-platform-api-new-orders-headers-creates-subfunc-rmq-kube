@@ -24,12 +24,19 @@ func (f *SubFunction) PriceMaster(
 		}
 	}
 
+	if dataKey.Product == nil {
+		return nil, nil
+	}
+
 	dataKey.SupplyChainRelationshipID = psdc.SupplyChainRelationshipGeneral[0].SupplyChainRelationshipID
 	dataKey.Buyer = psdc.SupplyChainRelationshipGeneral[0].Buyer
 	dataKey.Seller = psdc.SupplyChainRelationshipGeneral[0].Seller
 	dataKey.ConditionValidityEndDate = psdc.PricingDate.PricingDate
 	dataKey.ConditionValidityStartDate = psdc.PricingDate.PricingDate
 
+	if len(dataKey.Product) == 0 {
+		return nil, xerrors.Errorf("入力ファイルから取得した'Product'がありません。")
+	}
 	repeat := strings.Repeat("?,", len(dataKey.Product)-1) + "?"
 	for _, v := range dataKey.Product {
 		args = append(args, v)
@@ -71,16 +78,28 @@ func (f *SubFunction) ConditionAmount(
 	}
 
 	for _, v := range sdc.Header.Item {
+		orderItem := v.OrderItem
+		product := v.Product
+		conditionQuantity := v.OrderQuantityInBaseUnit
 		if v.ItemPricingElement[0].ConditionAmount == nil && v.Product != nil {
-			product := v.Product
-			conditionQuantity := v.OrderQuantityInBaseUnit
 			conditionRateValue := priceMasterMap[*v.Product].ConditionRateValue
 			conditionAmount, err := calculateConditionAmount(conditionQuantity, conditionRateValue)
 			if err != nil {
 				return nil, err
 			}
 
-			datum := psdc.ConvertToConditionAmount(*product, conditionQuantity, conditionAmount)
+			if product == nil {
+				return nil, xerrors.Errorf("入力ファイルから取得した'Product'がありません。")
+			}
+			datum := psdc.ConvertToConditionAmount(orderItem, *product, conditionQuantity, conditionAmount)
+			data = append(data, datum)
+		} else if v.ItemPricingElement[0].ConditionAmount != nil && v.Product != nil {
+			conditionAmount := v.ItemPricingElement[0].ConditionAmount
+
+			if product == nil {
+				return nil, xerrors.Errorf("入力ファイルから取得した'Product'がありません。")
+			}
+			datum := psdc.ConvertToConditionAmount(orderItem, *product, conditionQuantity, conditionAmount)
 			data = append(data, datum)
 		}
 	}
@@ -88,8 +107,8 @@ func (f *SubFunction) ConditionAmount(
 	return data, nil
 }
 
-func calculateConditionAmount(conditionRateValue *float32, conditionQuantity *float32) (*float32, error) {
-	if conditionRateValue == nil || conditionQuantity == nil {
+func calculateConditionAmount(conditionQuantity, conditionRateValue *float32) (*float32, error) {
+	if conditionQuantity == nil || conditionRateValue == nil {
 		return nil, xerrors.Errorf("ConditionRateValueまたはConditionQuantityがnullです。")
 	}
 

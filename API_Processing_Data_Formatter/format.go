@@ -410,65 +410,6 @@ func (psdc *SDC) ConvertToSupplyChainRelationshipPaymentRelation(rows *sql.Rows)
 	return res, nil
 }
 
-func (psdc *SDC) ConvertToCalculateOrderIDKey() *CalculateOrderIDKey {
-	pm := &requests.CalculateOrderIDKey{
-		FieldNameWithNumberRange: "OrderID",
-	}
-
-	data := pm
-	res := CalculateOrderIDKey{
-		ServiceLabel:             data.ServiceLabel,
-		FieldNameWithNumberRange: data.FieldNameWithNumberRange,
-	}
-
-	return &res
-}
-
-func (psdc *SDC) ConvertToCalculateOrderIDQueryGets(rows *sql.Rows) (*CalculateOrderIDQueryGets, error) {
-	defer rows.Close()
-	pm := &requests.CalculateOrderIDQueryGets{}
-
-	i := 0
-	for rows.Next() {
-		i++
-		err := rows.Scan(
-			&pm.ServiceLabel,
-			&pm.FieldNameWithNumberRange,
-			&pm.LatestNumber,
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if i == 0 {
-		return nil, xerrors.Errorf("'data_platform_number_range_latest_number_data'テーブルに対象のレコードが存在しません。")
-	}
-
-	data := pm
-	res := CalculateOrderIDQueryGets{
-		ServiceLabel:             data.ServiceLabel,
-		FieldNameWithNumberRange: data.FieldNameWithNumberRange,
-		LatestNumber:             data.LatestNumber,
-	}
-
-	return &res, nil
-}
-
-func (psdc *SDC) ConvertToCalculateOrderID(orderIDLatestNumber *int, orderID int) *CalculateOrderID {
-	pm := &requests.CalculateOrderID{}
-
-	pm.OrderIDLatestNumber = orderIDLatestNumber
-	pm.OrderID = orderID
-
-	data := pm
-	res := CalculateOrderID{
-		OrderIDLatestNumber: data.OrderIDLatestNumber,
-		OrderID:             data.OrderID,
-	}
-
-	return &res
-}
-
 func (psdc *SDC) ConvertToPaymentTerms(rows *sql.Rows) ([]*PaymentTerms, error) {
 	defer rows.Close()
 	res := make([]*PaymentTerms, 0)
@@ -507,9 +448,12 @@ func (psdc *SDC) ConvertToPaymentTerms(rows *sql.Rows) ([]*PaymentTerms, error) 
 	return res, nil
 }
 
-func (psdc *SDC) ConvertToInvoiceDocumentDate(sdc *api_input_reader.SDC) *InvoiceDocumentDate {
+func (psdc *SDC) ConvertToInvoiceDocumentDate(sdc *api_input_reader.SDC) (*InvoiceDocumentDate, error) {
 	pm := &requests.InvoiceDocumentDate{}
 
+	if sdc.Header.InvoiceDocumentDate == nil {
+		return nil, xerrors.Errorf("InvoiceDocumentDateがnullです。")
+	}
 	pm.InvoiceDocumentDate = *sdc.Header.InvoiceDocumentDate
 	data := pm
 
@@ -518,7 +462,7 @@ func (psdc *SDC) ConvertToInvoiceDocumentDate(sdc *api_input_reader.SDC) *Invoic
 		InvoiceDocumentDate:   data.InvoiceDocumentDate,
 	}
 
-	return &res
+	return &res, nil
 }
 
 func (psdc *SDC) ConvertToRequestedDeliveryDate(sdc *api_input_reader.SDC) (*InvoiceDocumentDate, error) {
@@ -539,7 +483,11 @@ func (psdc *SDC) ConvertToRequestedDeliveryDate(sdc *api_input_reader.SDC) (*Inv
 	return &res, nil
 }
 
-func (psdc *SDC) ConvertToCaluculateInvoiceDocumentDate(sdc *api_input_reader.SDC, invoiceDocumentDate string) *InvoiceDocumentDate {
+func (psdc *SDC) ConvertToCaluculateInvoiceDocumentDate(sdc *api_input_reader.SDC, invoiceDocumentDate string) (*InvoiceDocumentDate, error) {
+	if sdc.Header.RequestedDeliveryDate == nil {
+		return nil, xerrors.Errorf("RequestedDeliveryDateがnullです。")
+	}
+
 	pm := &requests.InvoiceDocumentDate{
 		RequestedDeliveryDate: *sdc.Header.RequestedDeliveryDate,
 	}
@@ -552,7 +500,7 @@ func (psdc *SDC) ConvertToCaluculateInvoiceDocumentDate(sdc *api_input_reader.SD
 		InvoiceDocumentDate:   data.InvoiceDocumentDate,
 	}
 
-	return &res
+	return &res, nil
 }
 
 func (psdc *SDC) ConvertToPaymentDueDate(paymentDueDate string) *PaymentDueDate {
@@ -886,11 +834,13 @@ func (psdc *SDC) ConvertToNetAmount(conditionAmount []*ConditionAmount) []*NetAm
 	for _, v := range conditionAmount {
 		pm := &requests.NetAmount{}
 
+		pm.OrderItem = v.OrderItem
 		pm.Product = v.Product
 		pm.NetAmount = v.ConditionAmount
 
 		data := pm
 		res = append(res, &NetAmount{
+			OrderItem: data.OrderItem,
 			Product:   data.Product,
 			NetAmount: data.NetAmount,
 		})
@@ -899,9 +849,10 @@ func (psdc *SDC) ConvertToNetAmount(conditionAmount []*ConditionAmount) []*NetAm
 	return res
 }
 
-func (psdc *SDC) ConvertToTaxAmount(product string, taxCode *string, taxRate, netAmount, taxAmount *float32) *TaxAmount {
+func (psdc *SDC) ConvertToTaxAmount(orderItem int, product string, taxCode string, taxRate, netAmount, taxAmount *float32) *TaxAmount {
 	pm := &requests.TaxAmount{}
 
+	pm.OrderItem = orderItem
 	pm.Product = product
 	pm.TaxCode = taxCode
 	pm.TaxRate = taxRate
@@ -910,6 +861,7 @@ func (psdc *SDC) ConvertToTaxAmount(product string, taxCode *string, taxRate, ne
 
 	data := pm
 	res := TaxAmount{
+		OrderItem: data.OrderItem,
 		Product:   data.Product,
 		TaxCode:   data.TaxCode,
 		TaxRate:   data.TaxRate,
@@ -920,9 +872,10 @@ func (psdc *SDC) ConvertToTaxAmount(product string, taxCode *string, taxRate, ne
 	return &res
 }
 
-func (psdc *SDC) ConvertToGrossAmount(product string, netAmount, taxAmount, grossAmount *float32) *GrossAmount {
+func (psdc *SDC) ConvertToGrossAmount(orderItem int, product string, netAmount, taxAmount, grossAmount *float32) *GrossAmount {
 	pm := &requests.GrossAmount{}
 
+	pm.OrderItem = orderItem
 	pm.Product = product
 	pm.NetAmount = netAmount
 	pm.TaxAmount = taxAmount
@@ -930,6 +883,7 @@ func (psdc *SDC) ConvertToGrossAmount(product string, netAmount, taxAmount, gros
 
 	data := pm
 	res := GrossAmount{
+		OrderItem:   data.OrderItem,
 		Product:     data.Product,
 		NetAmount:   data.NetAmount,
 		TaxAmount:   data.TaxAmount,
@@ -1002,17 +956,19 @@ func (psdc *SDC) ConvertToPriceMaster(rows *sql.Rows) ([]*PriceMaster, error) {
 	return res, nil
 }
 
-func (psdc *SDC) ConvertToConditionAmount(product string, conditionQuantity *float32, conditionAmount *float32) *ConditionAmount {
+func (psdc *SDC) ConvertToConditionAmount(orderItem int, product string, conditionQuantity *float32, conditionAmount *float32) *ConditionAmount {
 	pm := &requests.ConditionAmount{
 		ConditionIsManuallyChanged: getBoolPtr(false),
 	}
 
+	pm.OrderItem = orderItem
 	pm.Product = product
 	pm.ConditionQuantity = conditionQuantity
 	pm.ConditionAmount = conditionAmount
 
 	data := pm
 	res := ConditionAmount{
+		OrderItem:                  data.OrderItem,
 		Product:                    data.Product,
 		ConditionQuantity:          data.ConditionQuantity,
 		ConditionAmount:            data.ConditionAmount,

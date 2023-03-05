@@ -23,6 +23,9 @@ func (f *SubFunction) ProductTaxClassificationBillToCountry(
 
 	dataKey.Country = psdc.SupplyChainRelationshipBillingRelation[0].BillToCountry
 
+	if len(dataKey.Product) == 0 {
+		return nil, xerrors.Errorf("入力ファイルから取得した'Product'がありません。")
+	}
 	repeat := strings.Repeat("?,", len(dataKey.Product)-1) + "?"
 	for _, v := range dataKey.Product {
 		args = append(args, v)
@@ -62,6 +65,9 @@ func (f *SubFunction) ProductTaxClassificationBillFromCountry(
 
 	dataKey.Country = psdc.SupplyChainRelationshipBillingRelation[0].BillFromCountry
 
+	if len(dataKey.Product) == 0 {
+		return nil, xerrors.Errorf("入力ファイルから取得した'Product'がありません。")
+	}
 	repeat := strings.Repeat("?,", len(dataKey.Product)-1) + "?"
 	for _, v := range dataKey.Product {
 		args = append(args, v)
@@ -97,6 +103,7 @@ func (f *SubFunction) DefinedTaxClassification(
 	transactionTaxClassification := psdc.SupplyChainRelationshipBillingRelation[0].TransactionTaxClassification
 
 	productTaxClassificationBillFromCountry := psdc.ProductTaxClassificationBillFromCountry
+
 	productTaxClassificationBillFromCountryMap := make(map[string]*api_processing_data_formatter.ProductTaxClassificationBillFromCountry, len(productTaxClassificationBillFromCountry))
 	for _, v := range productTaxClassificationBillFromCountry {
 		productTaxClassificationBillFromCountryMap[v.Product] = v
@@ -176,6 +183,9 @@ func (f *SubFunction) TaxRate(
 	dataKey.ValidityEndDate = getSystemDate()
 	dataKey.ValidityStartDate = getSystemDate()
 
+	if len(dataKey.TaxCode) == 0 {
+		return nil, xerrors.Errorf("2-20-1でセットした'TaxCode'がありません。")
+	}
 	repeat := strings.Repeat("?,", len(dataKey.TaxCode)-1) + "?"
 	args = append(args, dataKey.Country)
 	for _, v := range dataKey.TaxCode {
@@ -220,9 +230,9 @@ func (f *SubFunction) TaxAmount(
 	data := make([]*api_processing_data_formatter.TaxAmount, 0)
 
 	item := sdc.Header.Item
-	itemMap := make(map[string]api_input_reader.Item, len(item))
+	itemMap := make(map[int]api_input_reader.Item, len(item))
 	for _, v := range item {
-		itemMap[*v.Product] = v
+		itemMap[v.OrderItem] = v
 	}
 
 	taxRate := psdc.TaxRate
@@ -237,21 +247,32 @@ func (f *SubFunction) TaxAmount(
 		netAmountMap[v.Product] = v
 	}
 
-	for _, v := range psdc.TaxCode {
+	taxCode := psdc.TaxCode
+	taxCodeMap := make(map[string]*api_processing_data_formatter.TaxCode, len(taxCode))
+	for _, v := range taxCode {
+		taxCodeMap[v.Product] = v
+	}
+	for _, v := range psdc.NetAmount {
 		taxAmount := new(float32)
-		if *v.TaxCode == "1" {
-			taxAmount, _ = calculateTaxAmount(taxRateMap[*v.TaxCode].TaxRate, netAmountMap[v.Product].NetAmount)
+		product := v.Product
+
+		if taxCodeMap[product].TaxCode == nil {
+			continue
+		}
+		taxCode := *taxCodeMap[product].TaxCode
+		if taxCode == "1" {
+			taxAmount, _ = calculateTaxAmount(taxRateMap[taxCode].TaxRate, netAmountMap[v.Product].NetAmount)
 		} else {
 			taxAmount = parseFloat32Ptr(0)
 		}
 
-		if itemMap[v.Product].TaxAmount == nil {
-			datum := psdc.ConvertToTaxAmount(v.Product, v.TaxCode, taxRateMap[*v.TaxCode].TaxRate, netAmountMap[v.Product].NetAmount, taxAmount)
+		if itemMap[v.OrderItem].TaxAmount == nil {
+			datum := psdc.ConvertToTaxAmount(v.OrderItem, v.Product, taxCode, taxRateMap[taxCode].TaxRate, netAmountMap[v.Product].NetAmount, taxAmount)
 			data = append(data, datum)
 		} else {
-			datum := psdc.ConvertToTaxAmount(v.Product, v.TaxCode, taxRateMap[*v.TaxCode].TaxRate, netAmountMap[v.Product].NetAmount, itemMap[v.Product].TaxAmount)
+			datum := psdc.ConvertToTaxAmount(v.OrderItem, v.Product, taxCode, taxRateMap[taxCode].TaxRate, netAmountMap[v.Product].NetAmount, itemMap[v.OrderItem].TaxAmount)
 			data = append(data, datum)
-			if math.Abs(float64(*taxAmount-*itemMap[v.Product].TaxAmount)) >= 2 {
+			if differenceIsOver(*taxAmount, *itemMap[v.OrderItem].TaxAmount, 2) {
 				return nil, xerrors.Errorf("TaxAmountについて入力ファイルの値と計算結果の差の絶対値が2以上の明細が一つ以上存在します。")
 			}
 		}
@@ -267,21 +288,24 @@ func (f *SubFunction) GrossAmount(
 	data := make([]*api_processing_data_formatter.GrossAmount, 0)
 
 	item := sdc.Header.Item
-	itemMap := make(map[string]api_input_reader.Item, len(item))
+	itemMap := make(map[int]api_input_reader.Item, len(item))
 	for _, v := range item {
-		itemMap[*v.Product] = v
+		itemMap[v.OrderItem] = v
 	}
 
 	for _, v := range psdc.TaxAmount {
+		if v.NetAmount == nil || v.TaxAmount == nil {
+			return nil, xerrors.Errorf("NetAmountまたはTaxAmountがnullです。")
+		}
 		grossAmount := parseFloat32Ptr(*v.NetAmount + *v.TaxAmount)
 
-		if itemMap[v.Product].GrossAmount == nil {
-			datum := psdc.ConvertToGrossAmount(v.Product, v.NetAmount, v.TaxAmount, grossAmount)
+		if itemMap[v.OrderItem].GrossAmount == nil {
+			datum := psdc.ConvertToGrossAmount(v.OrderItem, v.Product, v.NetAmount, v.TaxAmount, grossAmount)
 			data = append(data, datum)
 		} else {
-			datum := psdc.ConvertToGrossAmount(v.Product, v.NetAmount, v.TaxAmount, itemMap[v.Product].GrossAmount)
+			datum := psdc.ConvertToGrossAmount(v.OrderItem, v.Product, v.NetAmount, v.TaxAmount, itemMap[v.OrderItem].GrossAmount)
 			data = append(data, datum)
-			if math.Abs(float64(*grossAmount-*itemMap[v.Product].GrossAmount)) >= 2 {
+			if differenceIsOver(*grossAmount, *itemMap[v.OrderItem].GrossAmount, 2) {
 				return nil, xerrors.Errorf("GrossAmountについて入力ファイルの値と計算結果の差の絶対値が2以上の明細が一つ以上存在します。")
 			}
 		}
@@ -302,6 +326,10 @@ func calculateTaxAmount(taxRate *float32, netAmount *float32) (*float32, error) 
 	res := parseFloat32Ptr(float32(s))
 
 	return res, nil
+}
+
+func differenceIsOver(inputValue, calculatedValue float32, baseValue int) bool {
+	return math.Abs(float64(inputValue-calculatedValue)) >= float64(baseValue)
 }
 
 func getStringPtr(s string) *string {

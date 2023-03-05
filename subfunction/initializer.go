@@ -292,17 +292,6 @@ func (f *SubFunction) DirectRegistration(
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		defer wg.Done()
-		// 1-6. OrderID
-		psdc.CalculateOrderID, e = f.CalculateOrderID(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
-	}(&wg)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		defer wg.Done()
 		// 1-13. PriceDetnExchangeRate
 		psdc.PriceDetnExchangeRate = f.PriceDetnExchangeRate(sdc, psdc)
 

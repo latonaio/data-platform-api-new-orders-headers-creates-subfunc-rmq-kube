@@ -214,7 +214,7 @@ func (f *SubFunction) DirectRegistration(
 			return
 		}
 
-		// 2-3. DefinedTaxClassification  //2-1,2-2
+		// 2-3. DefinedTaxClassification  //1/4,2-1,2-2
 		psdc.DefinedTaxClassification, e = f.DefinedTaxClassification(sdc, psdc)
 		if e != nil {
 			err = e

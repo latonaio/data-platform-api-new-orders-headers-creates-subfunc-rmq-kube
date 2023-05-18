@@ -9,7 +9,7 @@
     "service_label": "ORDERS",
     "message": {
         "Header": {
-            "OrderID": 132,
+            "OrderID": 1,
             "OrderDate": "2022-09-17",
             "OrderType": "OD",
             "SupplyChainRelationshipID": 100000000,
@@ -23,8 +23,8 @@
             "BillFromCountry": "JP",
             "Payer": 101,
             "Payee": 201,
-            "CreationDate": "2023-03-04",
-            "LastChangeDate": "2023-03-04",
+            "CreationDate": "2023-04-15",
+            "LastChangeDate": "2023-04-15",
             "ContractType": null,
             "OrderValidityStartDate": null,
             "OrderValidityEndDate": null,
@@ -70,6 +70,6 @@
     "subfunc_error": "",
     "exconf_result": null,
     "exconf_error": "",
-    "api_processing_result": null,
+    "api_processing_result": true,
     "api_processing_error": ""
 }

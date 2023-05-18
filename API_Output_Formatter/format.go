@@ -54,14 +54,13 @@ func ConvertToHeader(
 	header.TotalGrossAmount = psdc.TotalGrossAmount.TotalGrossAmount
 	header.HeaderDeliveryStatus = "NP"
 	header.HeaderBillingStatus = "NP"
+	// header.HeaderDocReferenceStatus = psdc.HeaderDocReferenceStatus.HeaderDocReferenceStatus
 	header.PricingDate = psdc.PricingDate.PricingDate
 	header.PriceDetnExchangeRate = psdc.PriceDetnExchangeRate.PriceDetnExchangeRate
 	header.HeaderCompleteDeliveryIsDefined = getBoolPtr(false)
 	header.InvoiceDocumentDate = psdc.InvoiceDocumentDate.InvoiceDocumentDate
 	header.HeaderBlockStatus = getBoolPtr(false)
 	header.HeaderBillingBlockStatus = getBoolPtr(false)
-	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
-	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
 	header.HeaderDeliveryBlockStatus = getBoolPtr(false)
 	header.IsCancelled = getBoolPtr(false)
 	header.IsMarkedForDeletion = getBoolPtr(false)

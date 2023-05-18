@@ -516,6 +516,151 @@ func (f *SubFunction) HeaderDocReferenceStatus(
 	return data
 }
 
+func (f *SubFunction) QuotationsHeader(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) (*api_processing_data_formatter.QuotationsHeader, error) {
+	rows, err := f.db.Query(
+		`SELECT Quotation, QuotationType, QuotationStatus, SupplyChainRelationshipID, SupplyChainRelationshipBillingID, SupplyChainRelationshipPaymentID,
+		Buyer, Seller, BillToParty, BillFromParty, BillToCountry, BillFromCountry, Payer, Payee, CreationDate, LastChangeDate, ContractType,
+		BindingPeriodValidityStartDate, BindingPeriodValidityEndDate, OrderVaridityStartDate, OrderValidityEndDate, InvoicePeriodStartDate,
+		InvoicePeriodEndDate, TotalNetAmount, TotalTaxAmount, TotalGrossAmount, TransactionCurrency, PricingDate, PriceDetnExchangeRate,
+		RequestedDeliveryDate, OrderProbabilityInPercent, ExpectedOrderNetAmount, Incoterms, PaymentTerms, PaymentMethod, ReferenceDocument,
+		ReferenceDocumentItem, AccountAssignmentGroup, AccountingExchangeRate, InvoiceDocumentDate, IsExportImport, HeaderText
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_quotations_header_data
+		WHERE ReferenceDocument =  ?;`, sdc.InputParameters.ReferenceDocument,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToQuotationsHeader(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersHeader(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersHeader, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, OrderDate, OrderType, SupplyChainRelationshipID, SupplyChainRelationshipBillingID, SupplyChainRelationshipPaymentID,
+		Buyer, Seller, BillToParty, BillFromParty, BillToCountry, BillFromCountry, Payer, Payee, CreationDate, LastChangeDate, ContractType,
+		OrderValidityStartDate, OrderValidityEndDate, InvoicePeriodStartDate, InvoicePeriodEndDate, TotalNetAmount, TotalTaxAmount, TotalGrossAmount,
+		HeaderDeliveryStatus, HeaderBillingStatus, HeaderDocReferenceStatus, TransactionCurrency, PricingDate, PriceDetnExchangeRate, 
+		RequestedDeliveryDate, HeaderCompleteDeliveryIsDefined, Incoterms, PaymentTerms, PaymentMethod, ReferenceDocument, ReferenceDocumentItem,
+		AccountAssignmentGroup, AccountingExchangeRate, InvoiceDocumentDate, IsExportImport, HeaderText, HeaderBlockStatus, HeaderDeliveryBlockStatus,
+		HeaderBillingBlockStatus, IsCancelled, IsMarkedForDeletion
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_header_data
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersHeader(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) QuotationsPartner(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.QuotationsPartner, error) {
+	rows, err := f.db.Query(
+		`SELECT Quotation, PartnerFunction, BusinessPartner, BusinessPartnerFullName, BusinessPartnerName, Organization,
+		Country, Language, Currency, ExternalDocumentID, AddressID
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_quotations_partner_data
+		WHERE ReferenceDocument =  ?;`, sdc.InputParameters.ReferenceDocument,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToQuotationsPartner(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersPartner(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersPartner, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, PartnerFunction, BusinessPartner, BusinessPartnerFullName, BusinessPartnerName, Organization, Country,
+		Language, Currency, ExternalDocumentID, AddressID
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_partner_data
+		WHERE ReferenceDocument =  ?;`, sdc.InputParameters.ReferenceDocument,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersPartner(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) QuotationsAddress(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.QuotationsAddress, error) {
+	rows, err := f.db.Query(
+		`SELECT Quotation, AddressID, PostalCode, LocalRegion, Country, District, StreetName, CityName, Building, Floor, Room
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_quotations_address_data
+		WHERE ReferenceDocument =  ?;`, sdc.InputParameters.ReferenceDocument,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToQuotationsAddress(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersAddress(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersAddress, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, AddressID, PostalCode, LocalRegion, Country, District, StreetName, CityName, Building, Floor, Room
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_address_data
+		WHERE ReferenceDocument =  ?;`, sdc.InputParameters.ReferenceDocument,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersAddress(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
 func (f *SubFunction) PricingDate(
 	sdc *api_input_reader.SDC,
 	psdc *api_processing_data_formatter.SDC,

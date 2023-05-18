@@ -328,6 +328,76 @@ func calculateTaxAmount(taxRate *float32, netAmount *float32) (*float32, error) 
 	return res, nil
 }
 
+func (f *SubFunction) QuotationsItem(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.QuotationsItem, error) {
+	rows, err := f.db.Query(
+		`SELECT Quotation, QuotationItem, QuotationItemCategory, SupplyChainRelationshipID, QuotationItemText, QuotationItemTextByBuyer,
+		QuotationItemTextBySeller, Product, ProductStandardID, ProductGroup, BaseUnit, PricingDate, PriceDetnExchangeRate, RequestedDeliveryDate,
+		CreationDate, LastChangeDate, DeliveryUnit, ServicesRenderingDate, QuotationQuantityInBaseUnit, QuotationQuantityInDeliveryUnit,
+		ItemWeightUnit, ProductGrossWeight, ItemGrossWeight, ProductNetWeight, ItemNetWeight, InternalCapacityQuantity, InternalCapacityQuantityUnit,
+		NetAmount, TaxAmount, GrossAmount, Incoterms, TransactionTaxClassification, ProductTaxClassificationBillToCountry, ProductTaxClassificationBillFromCountry,
+		DefinedTaxClassification, AccountAssignmentGroup, ProductAccountAssignmentGroup, PaymentTerms, PaymentMethod, Project, AccountingExchangeRate,
+		ReferenceDocument, ReferenceDocumentItem, TaxCode, TaxRate, CountryOfOrigin, CountryOfOriginLanguage
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_quotations_item_data
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToQuotationsItem(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersItem(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersItem, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, OrderItem, OrderItemCategory, SupplyChainRelationshipID, SupplyChainRelationshipDeliveryID, SupplyChainRelationshipDeliveryPlantID,
+		SupplyChainRelationshipStockConfPlantID, SupplyChainRelationshipProductionPlantID, OrderItemText, OrderItemTextByBuyer, OrderItemTextBySeller,
+		Product, ProductStandardID, ProductGroup, BaseUnit, PricingDate, PriceDetnExchangeRate, RequestedDeliveryDate, DeliverToParty, DeliverFromParty,
+		CreationDate, LastChangeDate, DeliverToPlant, DeliverToPlantTimeZone, DeliverToPlantStorageLocation, ProductIsBatchManagedInDeliverToPlant,
+		BatchMgmtPolicyInDeliverToPlant, DeliverToPlantBatch, DeliverToPlantBatchValidityStartDate, DeliverToPlantBatchValidityStartTime, 
+		DeliverToPlantBatchValidityEndDate, DeliverToPlantBatchValidityEndTime, DeliverFromPlant, DeliverFromPlantTimeZone, DeliverFromPlantStorageLocation,
+		ProductIsBatchManagedInDeliverFromPlant, BatchMgmtPolicyInDeliverFromPlant, DeliverFromPlantBatch, DeliverFromPlantBatchValidityStartDate,
+		DeliverFromPlantBatchValidityStartTime, DeliverFromPlantBatchValidityEndDate, DeliverFromPlantBatchValidityEndTime, DeliveryUnit,
+		StockConfirmationBusinessPartner, StockConfirmationPlant, StockConfirmationPlantTimeZone, ProductIsBatchManagedInStockConfirmationPlant,
+		BatchMgmtPolicyInStockConfirmationPlant, StockConfirmationPlantBatch, StockConfirmationPlantBatchValidityStartDate, StockConfirmationPlantBatchValidityStartTime,
+		StockConfirmationPlantBatchValidityEndDate, StockConfirmationPlantBatchValidityEndTime, ServicesRenderingDate, OrderQuantityInBaseUnit,
+		OrderQuantityInDeliveryUnit, StockConfirmationPolicy, StockConfirmationStatus, ConfirmedOrderQuantityInBaseUnit, ItemWeightUnit,
+		ProductGrossWeight, ItemGrossWeight, ProductNetWeight, ItemNetWeight, InternalCapacityQuantity, InternalCapacityQuantityUnit, NetAmount,
+		TaxAmount, GrossAmount, InvoiceDocumentDate, ProductionPlantBusinessPartner, ProductionPlant, ProductionPlantTimeZone, ProductionPlantStorageLocation,
+		ProductIsBatchManagedInProductionPlant, BatchMgmtPolicyInProductionPlant, ProductionPlantBatch, ProductionPlantBatchValidityStartDate,
+		ProductionPlantBatchValidityStartTime, ProductionPlantBatchValidityEndDate, ProductionPlantBatchValidityEndTime, Incoterms, TransactionTaxClassification,
+		ProductTaxClassificationBillToCountry, ProductTaxClassificationBillFromCountry, DefinedTaxClassification, AccountAssignmentGroup,
+		ProductAccountAssignmentGroup, PaymentTerms, DueCalculationBaseDate, PaymentDueDate, NetPaymentDays, PaymentMethod, Project, AccountingExchangeRate,
+		ReferenceDocument, ReferenceDocumentItem, ItemCompleteDeliveryIsDefined, ItemDeliveryStatus, IssuingStatus, ReceivingStatus, ItemBillingStatus,
+		TaxCode, TaxRate, CountryOfOrigin, CountryOfOriginLanguage, ItemBlockStatus, ItemDeliveryBlockStatus, ItemBillingBlockStatus, IsCancelled
+		IsMarkedForDeletion
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_item_data
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersItem(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
 func differenceIsOver(inputValue, calculatedValue float32, baseValue int) bool {
 	return math.Abs(float64(inputValue-calculatedValue)) >= float64(baseValue)
 }

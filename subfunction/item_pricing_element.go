@@ -121,6 +121,81 @@ func calculateConditionAmount(conditionQuantity, conditionRateValue *float32) (*
 	return res, nil
 }
 
+func (f *SubFunction) QuotationsItemPricingElement(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.QuotationsItemPricingElement, error) {
+	rows, err := f.db.Query(
+		`SELECT Quotation, QuotationItem, SupplyChainRelationshipID, Buyer, Seller, PricingProcedureCounter, ConditionRecord,
+		ConditionSequentialNumber, ConditionType, PricingDate, ConditionRateValue, ConditionCurrency, ConditionQuantity,
+		ConditionQuantityUnit, TaxCode, ConditionAmount, TransactionCurrency, ConditionIsManuallyChanged
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_quotations_item_pricing_element
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToQuotationsItemPricingElement(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersItemPricingElement(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersItemPricingElement, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, OrderItem, SupplyChainRelationshipID, Buyer, Seller, PricingProcedureCounter, ConditionRecord, ConditionSequentialNumber,
+		ConditionType, PricingDate, ConditionRateValue, ConditionCurrency, ConditionQuantity, ConditionQuantityUnit, TaxCode, ConditionAmount,
+		TransactionCurrency, ConditionIsManuallyChanged
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_item_pricing_element_data
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersItemPricingElement(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
+func (f *SubFunction) OrdersItemScheduleLine(
+	sdc *api_input_reader.SDC,
+	psdc *api_processing_data_formatter.SDC,
+) ([]*api_processing_data_formatter.OrdersItemScheduleLine, error) {
+	rows, err := f.db.Query(
+		`SELECT OrderID, OrderItem, ScheduleLine, SupplyChainRelationshipID, SupplyChainRelationshipStockConfPlantID, Product,
+		StockConfirmationBussinessPartner, StockConfirmationPlant, StockConfirmationPlantTimeZone, StockConfirmationPlantBatch,
+		StockConfirmationPlantBatchValidityStartDate, StockConfirmationPlantBatchValidityEndDate, RequestedDeliveryDate, ConfirmedDeliveryDate,
+		OrderQuantityInBaseUnit, ConfirmedOrderQuantityByPDTAvailCheck, ConfirmedOrderQuantityByPDTAvailCheckInBaseUnit, DeliveredQuantityInBaseUnit,
+		UndeliveredQuantityInBaseUnit, OpenConfirmedQuantityInBaseUnit, StockIsFullyConfirmed, PlusMinusFlag, ItemScheduleLineDeliveryBlockStatus,
+		IsCancelled, IsDeleted
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_orders_item_schedule_line_data
+		WHERE (ReferenceDocument, ReferenceDocumentItem) =  (?, ?);`, sdc.InputParameters.ReferenceDocument, sdc.InputParameters.ReferenceDocumentItem,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	data, err := psdc.ConvertToOrdersItemScheduleLine(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, err
+}
+
 func float32DecimalDigit(f float32) int {
 	s := strconv.FormatFloat(float64(f), 'f', -1, 32)
 

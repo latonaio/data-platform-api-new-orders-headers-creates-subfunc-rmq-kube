@@ -162,131 +162,150 @@ func (f *SubFunction) DirectRegistration(
 			return
 		}
 
-		// 1-4. サプライチェーンリレーションシップマスタ請求関係データの取得  //1-0
-		psdc.SupplyChainRelationshipBillingRelation, e = f.SupplyChainRelationshipBillingRelation(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+			// 1-7. InvoiceDocumentDate  //1-3
+			psdc.InvoiceDocumentDate, e = f.InvoiceDocumentDate(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 1-5. サプライチェーンリレーションシップマスタ支払関係データの取得  //1-4
-		psdc.SupplyChainRelationshipPaymentRelation, e = f.SupplyChainRelationshipPaymentRelation(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 1-8. PaymentDueDate  //1-7
+			psdc.PaymentDueDate, e = f.PaymentDueDate(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 1-7. InvoiceDocumentDate  //1-3
-		psdc.InvoiceDocumentDate, e = f.InvoiceDocumentDate(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 1-9. NetPaymentDays  //1-7,1-8
+			psdc.NetPaymentDays, e = f.NetPaymentDays(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
+		}(wg)
 
-		// 1-8. PaymentDueDate  //1-7
-		psdc.PaymentDueDate, e = f.PaymentDueDate(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+			// 1-4. サプライチェーンリレーションシップマスタ請求関係データの取得  //1-0
+			psdc.SupplyChainRelationshipBillingRelation, e = f.SupplyChainRelationshipBillingRelation(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 1-9. NetPaymentDays  //1-7,1-8
-		psdc.NetPaymentDays, e = f.NetPaymentDays(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 2-1. ProductTaxClassificationBillToCountry  //1-4
+			psdc.ProductTaxClassificationBillToCountry, e = f.ProductTaxClassificationBillToCountry(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 1-12. PricingDate
-		psdc.PricingDate = f.PricingDate(sdc, psdc)
+			// 2-2. ProductTaxClassificationBillFromCountry  //1-4
+			psdc.ProductTaxClassificationBillFromCountry, e = f.ProductTaxClassificationBillFromCountry(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 2-1. ProductTaxClassificationBillToCountry  //1-4
-		psdc.ProductTaxClassificationBillToCountry, e = f.ProductTaxClassificationBillToCountry(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 2-3. DefinedTaxClassification  //2-1,2-2
+			psdc.DefinedTaxClassification, e = f.DefinedTaxClassification(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 2-2. ProductTaxClassificationBillFromCountry  //1-4
-		psdc.ProductTaxClassificationBillFromCountry, e = f.ProductTaxClassificationBillFromCountry(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 2-20. TaxCode  //1-4,2-3
+			psdc.TaxCode, e = f.TaxCode(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 2-3. DefinedTaxClassification  //1/4,2-1,2-2
-		psdc.DefinedTaxClassification, e = f.DefinedTaxClassification(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			//2-21. TaxRateの計算  //2-20
+			psdc.TaxRate, e = f.TaxRate(sdc, psdc)
+			if e != nil {
+				err = e
+				return
+			}
 
-		// 2-20. TaxCode  //1-4,2-3
-		psdc.TaxCode, e = f.TaxCode(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			// 1-12. PricingDate
+			psdc.PricingDate = f.PricingDate(sdc, psdc)
 
-		//2-21. TaxRateの計算  //2-20
-		psdc.TaxRate, e = f.TaxRate(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+			wg.Add(1)
+			go func(wg *sync.WaitGroup) {
+				defer wg.Done()
+				// 1-5. サプライチェーンリレーションシップマスタ支払関係データの取得  //1-4
+				psdc.SupplyChainRelationshipPaymentRelation, e = f.SupplyChainRelationshipPaymentRelation(sdc, psdc)
+				if e != nil {
+					err = e
+					return
+				}
 
-		// 8-1. 価格マスタデータの取得(入力ファイルの[ConditionAmount]がnullである場合)  //1-0,1-12
-		psdc.PriceMaster, e = f.PriceMaster(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+				wg.Add(1)
+				go func(wg *sync.WaitGroup) {
+					defer wg.Done()
+					// 8-1. 価格マスタデータの取得(入力ファイルの[ConditionAmount]がnullである場合)  //1-0,1-12
+					psdc.PriceMaster, e = f.PriceMaster(sdc, psdc)
+					if e != nil {
+						err = e
+						return
+					}
 
-		// 8-2. 価格の計算(入力ファイルの[ConditionAmount]がnullである場合)  //8-1
-		psdc.ConditionAmount, e = f.ConditionAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+					// 8-2. 価格の計算(入力ファイルの[ConditionAmount]がnullである場合)  //8-1
+					psdc.ConditionAmount, e = f.ConditionAmount(sdc, psdc)
+					if e != nil {
+						err = e
+						return
+					}
 
-		// 9-1. NetAmount  //8-2
-		psdc.NetAmount = f.NetAmount(sdc, psdc)
+					// 9-1. NetAmount  //8-2
+					psdc.NetAmount = f.NetAmount(sdc, psdc)
 
-		// 11-1. TotalNetAmount
-		psdc.TotalNetAmount, e = f.TotalNetAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+					// 9-2. TaxAmount  //2-20,2-21,9-1
+					psdc.TaxAmount, e = f.TaxAmount(sdc, psdc)
+					if e != nil {
+						err = e
+						return
+					}
 
-		// 9-2. TaxAmount  //2-20,2-21,9-1
-		psdc.TaxAmount, e = f.TaxAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+					// 9-3. GrossAmount  //9-1,9-2
+					psdc.GrossAmount, e = f.GrossAmount(sdc, psdc)
+					if e != nil {
+						err = e
+						return
+					}
 
-		// 11-2. TotalTaxAmount
-		psdc.TotalTaxAmount, e = f.TotalTaxAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+					wg.Add(1)
+					go func(wg *sync.WaitGroup) {
+						defer wg.Done()
+						// 11-1. TotalNetAmount
+						psdc.TotalNetAmount, e = f.TotalNetAmount(sdc, psdc)
+						if e != nil {
+							err = e
+							return
+						}
 
-		// 9-3. GrossAmount  // 9-1,9-2
-		psdc.GrossAmount, e = f.GrossAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
+						// 11-2. TotalTaxAmount
+						psdc.TotalTaxAmount, e = f.TotalTaxAmount(sdc, psdc)
+						if e != nil {
+							err = e
+							return
+						}
 
-		// 11-3. TotalGrossAmount  // 9-3
-		psdc.TotalGrossAmount, e = f.TotalGrossAmount(sdc, psdc)
-		if e != nil {
-			err = e
-			return
-		}
-
+						// 11-3. TotalGrossAmount  //9-3
+						psdc.TotalGrossAmount, e = f.TotalGrossAmount(sdc, psdc)
+						if e != nil {
+							err = e
+							return
+						}
+					}(wg)
+				}(wg)
+			}(wg)
+		}(wg)
 	}(&wg)
 
 	wg.Add(1)
@@ -317,8 +336,84 @@ func (f *SubFunction) ReferenceRegistration(
 		return err
 	}
 
-	// // 1-11. HeaderDocReferenceStatus
-	// psdc.HeaderDocReferenceStatus = f.HeaderDocReferenceStatus(sdc, psdc)
+	// 40-1. HeaderDocReferenceStatus //0-2
+	psdc.HeaderDocReferenceStatus = f.HeaderDocReferenceStatus(sdc, psdc)
+
+	if psdc.HeaderDocReferenceStatus.HeaderDocReferenceStatus == "QT" {
+		//40-2-1. 見積ヘッダデータの取得 //40-1
+		psdc.QuotationsHeader, err = f.QuotationsHeader(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-2-2. 見積明細データの取得 //40-1
+		psdc.QuotationsItem, err = f.QuotationsItem(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-2-3. 見積明細価格決定要素データの取得 //40-1
+		psdc.QuotationsItemPricingElement, err = f.QuotationsItemPricingElement(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-2-4. 見積パートナデータの取得 //40-1
+		psdc.QuotationsPartner, err = f.QuotationsPartner(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-2-5. 見積住所データの取得 //40-1
+		psdc.QuotationsAddress, err = f.QuotationsAddress(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+	} else if psdc.HeaderDocReferenceStatus.HeaderDocReferenceStatus == "IN" {
+		//40-3. 引合参照 //40-1
+
+	} else if psdc.HeaderDocReferenceStatus.HeaderDocReferenceStatus == "PR" {
+		//40-4. 購買依頼参照 //40-1
+
+	} else if psdc.HeaderDocReferenceStatus.HeaderDocReferenceStatus == "ORDERS" {
+		//40-5-1. オーダーヘッダデータの取得 //40-1
+		psdc.OrdersHeader, err = f.OrdersHeader(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-5-2. オーダー明細データの取得 //40-1
+		psdc.OrdersItem, err = f.OrdersItem(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-5-3. オーダー明細価格条件データの取得 //40-1
+		psdc.OrdersItemPricingElement, err = f.OrdersItemPricingElement(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-5-4. オーダー明細納入日程行データの取得 //40-1
+		psdc.OrdersItemScheduleLine, err = f.OrdersItemScheduleLine(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-5-5. オーダーパートナデータの取得 //40-1
+		psdc.OrdersPartner, err = f.OrdersPartner(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+		//40-5-6. オーダーアドレスデータの取得 //40-1
+		psdc.OrdersAddress, err = f.OrdersAddress(sdc, psdc)
+		if err != nil {
+			return err
+		}
+
+	}
 
 	return err
 }
